@@ -5,6 +5,7 @@ Le bot joue seul contre le jeu : chaque tour il reçoit l'état du jeu et envoie
 **une seule action** (lancer une météorite ou déclencher un volcan). Le but est
 d'obtenir le meilleur score possible sur une partie de 1000 tours.
 
+> ‼️ I am just responsible for the code in `src/bot/Bot.java` And the reste are [Coveo's](https://github.com/coveo) properties
 
 ## Prérequis
 
@@ -26,6 +27,10 @@ mvn -v
 ThanatosAI/
 ├── pom.xml                                   # dépendances et build (jar exécutable bot.jar)
 ├── README.md                                 # ce fichier
+├── INSTRUCTIONS.md                           # règles et guide complet
+├── launcher/                                 # launcher du défi (serveur de jeu local), ignoré par Git
+│   ├── blitz-challenge-macos-arm64           # binaire du launcher
+│   └── ui/                                   # interface web locale du launcher
 └── src/main/java/codes/blitz/game/
     ├── bot/Bot.java                          # ✅ VOTRE STRATÉGIE (seul fichier à modifier)
     ├── generated/                            # ❌ types générés, ne pas modifier
@@ -36,13 +41,17 @@ ThanatosAI/
 
 ## Démarrage rapide
 
-1. Lancer le serveur de jeu local (dans son propre dossier, en arrière-plan) :
+1. Lancer le serveur de jeu local, depuis le dossier `launcher/`, en arrière-plan :
 
    ```bash
+   cd launcher
    ./blitz-challenge-macos-arm64 --keepAlive false --delayBetweenTicksMs 0 --recordPath game.json > launcher.log 2>&1 &
+   cd ..
    ```
 
-2. Compiler et lancer le bot depuis ce dossier :
+   `game.json` et `launcher.log` sont écrits dans `launcher/`.
+
+2. Compiler et lancer le bot depuis la racine de ce projet :
 
    ```bash
    mvn package
@@ -60,11 +69,15 @@ launcher ferme la connexion. Le détail de chaque étape est dans
 | Compiler le jar exécutable | `mvn package` |
 | Nettoyer les sorties de build | `mvn clean` |
 | Lancer le bot | `java -jar target/bot.jar` |
-| Se connecter aux serveurs | `<launcher> login` |
-| Envoyer le bot | `<launcher> upload ../bot.zip` |
-| Partie d'entraînement sur serveur | `<launcher> practice` |
+| Se connecter aux serveurs | `./launcher/blitz-challenge-macos-arm64 login` |
+| Envoyer le bot | `./launcher/blitz-challenge-macos-arm64 upload ../bot.zip` |
+| Partie d'entraînement sur serveur | `./launcher/blitz-challenge-macos-arm64 practice` |
 
-`<launcher>` désigne le binaire `blitz-challenge-…` pour votre système.
+Les commandes qui parlent aux serveurs (`login`, `upload`, `practice`,
+`download`, `games`, `builds`) se lancent depuis la racine de ce projet. Le zip
+est créé hors du projet (`../bot.zip`), voir [INSTRUCTIONS.md](INSTRUCTIONS.md),
+section 5. Sur Windows ou Linux, remplacez `blitz-challenge-macos-arm64` par le
+binaire de votre système.
 
 ## Règles à respecter
 

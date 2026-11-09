@@ -467,7 +467,7 @@ Une réponse en retard compte comme « aucune action ».
 3. Améliorer le ciblage des météorites (3.4) en gardant une seule météorite.
 4. Ajouter la gestion de `maxMeteors` et des cibles dans le cadre.
 5. Ajouter les volcans (3.5) et l'arbitrage (3.6).
-6. Tester plusieurs cartes (`--listMaps`, `--biome`, `--randomSeed`) et comparer.
+6. Tester plusieurs cartes (`--biome`, `--randomSeed`) et comparer.
 7. Uploader et observer les parties sur les serveurs
    (voir 05-serveurs-et-inscription.md).
 
@@ -484,19 +484,26 @@ Le launcher `blitz-challenge-…` est le serveur de jeu local. Il attend le bot 
 
 ### 4.1 Télécharger le launcher
 
-Téléchargez le binaire correspondant à votre système depuis le dashboard, puis
-placez-le dans un dossier dédié (hors de ce projet).
+Téléchargez le launcher depuis le dashboard. Dans ce projet, il est rangé dans
+le dossier `launcher/` (ignoré par Git) :
 
-| Système | Dossier | Exécutable |
-| --- | --- | --- |
-| Windows | `windows-x64` | `blitz-challenge-win.exe` |
-| macOS (Apple Silicon) | `macos-arm64` | `blitz-challenge-macos-arm64` |
-| Linux | `linux-x64` | `blitz-challenge-linux` |
+```
+ThanatosAI/
+└── launcher/
+    ├── blitz-challenge-macos-arm64     # binaire (sur Windows : blitz-challenge-win.exe)
+    └── ui/                             # interface web locale
+```
+
+| Système | Exécutable |
+| --- | --- |
+| Windows | `blitz-challenge-win.exe` |
+| macOS (Apple Silicon) | `blitz-challenge-macos-arm64` |
+| Linux | `blitz-challenge-linux` |
 
 Sur macOS et Linux, rendez-le exécutable si besoin :
 
 ```bash
-chmod +x blitz-challenge-macos-arm64
+chmod +x launcher/blitz-challenge-macos-arm64
 ```
 
 Sur macOS, si le système bloque le binaire, autorisez-le dans
@@ -504,11 +511,15 @@ Réglages Système → Confidentialité et sécurité.
 
 ### 4.2 Lancer une partie locale
 
-Depuis le dossier du launcher :
+Depuis le dossier `launcher/` (`game.json` et `launcher.log` y sont écrits) :
 
 ```bash
+cd launcher
 ./blitz-challenge-macos-arm64 --keepAlive false --delayBetweenTicksMs 0 --recordPath game.json > launcher.log 2>&1 &
+cd ..
 ```
+
+Puis, depuis la racine du projet, lancez le bot (`mvn package` puis `java -jar target/bot.jar`).
 
 | Option | Effet |
 | --- | --- |
@@ -518,7 +529,6 @@ Depuis le dossier du launcher :
 | `--timePerTickMs 150` | Limite de temps par tour, comme sur les serveurs |
 | `--maxTimeoutsBeforeKick 50` | Nombre de retards avant exclusion, comme sur les serveurs |
 | `--biome …`, `--randomSeed …` | Rejouer la même carte |
-| `--listMaps` | Lister les cartes disponibles |
 | `--help` | Toutes les options |
 
 Pour tester avec les mêmes conditions que les serveurs, ajoutez
@@ -621,7 +631,14 @@ listés dans `.gitignore` : ne les versionnez pas.
 ## 5. Serveurs et inscription
 
 Les parties qui comptent pour l'inscription se jouent sur les serveurs officiels.
-Le même launcher sert à s'y connecter.
+Le même launcher sert à s'y connecter. Dans ce projet, les commandes se lancent
+depuis la racine du projet, avec le binaire de `launcher/` :
+
+```bash
+./launcher/blitz-challenge-macos-arm64 login
+```
+
+Dans les exemples ci-dessous, `<launcher>` désigne cette commande.
 
 ### 5.1 Connexion
 
@@ -834,7 +851,7 @@ Réglages Système → Confidentialité et sécurité → autoriser le binaire, 
 relancer. Vous pouvez aussi retirer l'attribut de quarantaine :
 
 ```bash
-xattr -d com.apple.quarantine blitz-challenge-macos-arm64
+xattr -d com.apple.quarantine launcher/blitz-challenge-macos-arm64
 ```
 
 ### Mémoire qui augmente pendant la partie

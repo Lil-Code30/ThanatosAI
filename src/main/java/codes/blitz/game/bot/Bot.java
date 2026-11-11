@@ -1,9 +1,7 @@
 package codes.blitz.game.bot;
 
-import codes.blitz.game.generated.Action;
-import codes.blitz.game.generated.Dinosaur;
-import codes.blitz.game.generated.LaunchMeteorAction;
-import codes.blitz.game.generated.TeamGameState;
+import codes.blitz.game.generated.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +9,6 @@ public class Bot {
   public Bot() {
     System.out.println("Initializing your super mega duper bot");
   }
-
   /*
    * Here is where the magic happens, for now the moves are not very good. I bet you can do better ;)
    */

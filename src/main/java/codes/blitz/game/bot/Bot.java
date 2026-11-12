@@ -12,11 +12,24 @@ public class Bot {
   private final VolcanoPlanner volcanoPlanner = new VolcanoPlanner();
 
 
+  /**
+   * Crée le bot et affiche un message de démarrage.
+   * Appelé une seule fois par {@code WebsocketClient}, donc les planificateurs
+   * sont conservés d'un tour à l'autre.
+   */
   public Bot() {
     System.out.println("Initializing your super mega duper bot");
   }
 
 
+  /**
+   * Décide de l'action à jouer pour le tour courant.
+   * Priorité à la météorite ; si aucune cible météorite n'est valable, on tente un volcan.
+   * Le serveur n'applique que la première action de la liste.
+   *
+   * @param state l'état du jeu reçu du serveur pour ce tour
+   * @return la liste des actions à envoyer (vide si rien n'est utile ce tour)
+   */
   /*
    * Here is where the magic happens, for now the moves are not very good. I bet you can do better ;)
    */

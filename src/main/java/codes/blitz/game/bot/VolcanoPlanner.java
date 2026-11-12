@@ -7,6 +7,14 @@ import java.util.Optional;
 
 public final class VolcanoPlanner {
 
+    /**
+     * Choisit la montagne où déclencher un volcan : celle la plus proche d'un dinosaure.
+     * Ne renvoie rien si la limite de volcans actifs est atteinte, s'il n'y a aucun dinosaure,
+     * ou si aucune montagne valable n'est dans le cadre.
+     *
+     * @param view la vue du tour courant
+     * @return la position de la montagne choisie, ou {@link Optional#empty()} si aucune action n'est utile
+     */
     // Renvoie la montagne la plus proche d'un dinosaure, ou rien.
     public Optional<WorldPosition> bestMountain(TurnView view){
 
@@ -40,6 +48,14 @@ public final class VolcanoPlanner {
         return Optional.ofNullable(best);
     }
 
+    /**
+     * Calcule la distance entre une position et le dinosaure le plus proche de celle-ci.
+     *
+     * @param view la vue du tour courant (contient la liste des dinosaures)
+     * @param from la position de départ (par exemple une montagne)
+     * @return la plus petite distance de Manhattan entre {@code from} et un dinosaure,
+     *         ou {@link Integer#MAX_VALUE} s'il n'y a aucun dinosaure
+     */
     // Distance entre une position et le dinosaure le plus proche.
     private int distanceToNearestDinosaur(TurnView view, WorldPosition from){
         int nearest = Integer.MAX_VALUE;

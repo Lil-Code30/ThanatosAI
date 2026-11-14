@@ -13,6 +13,7 @@ public final class TurnView {
     private final List<Dinosaur> dinosaurs; // sorted from young to old
     private final Set<WorldPosition> dangerTiles = new HashSet<>(); // position of the tiles that will be touch by a
     private final Set<WorldPosition> volcanoTiles = new HashSet<>(); // position of active volcano
+    private final Set<WorldPosition> lavaTiles = new HashSet<>(); // position of lava tiles
 
     /**
      * Prépare la vue du tour à partir de l'état reçu du serveur.
@@ -34,6 +35,14 @@ public final class TurnView {
         // note the positions of the already erupted volcanoes
         for(Volcano volcano : state.volcanoes()){
             volcanoTiles.add(volcano.position());
+        }
+
+        for (Tile[] row : state.map().tiles()) {
+            for (Tile tile : row) {
+                if (tile.hasLava()) {
+                    lavaTiles.add(tile.position());
+                }
+            }
         }
     }
 
@@ -124,6 +133,72 @@ public final class TurnView {
                 && position.x() < minX + map.width()
                 && position.y() >= minY
                 && position.y() < minY + map.height();
+    }
+
+    /**
+     * Indique si une case est dangereuse pour un dinosaure : météorite en vol, lave,
+     * terrain infranchissable, ou case que la lave va atteindre au prochain tour.
+     */
+    public boolean isDangerous(WorldPosition position){
+        Tile tile = titleAt(position);
+        if (tile == null || tile.isImpassable() || tile.hasLava() || isInDanger(position)) {
+            return true;
+        }
+        for (WorldPosition n : neighbours(position)) {
+            Tile neighbour = titleAt(n);
+            if (neighbour != null && (neighbour.hasLava() || neighbour.isMountain())
+                    && tile.elevation() <= neighbour.elevation()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Indique si une case est recouverte de lave.
+     */
+    public boolean hasLava(WorldPosition position){
+        return lavaTiles.contains(position);
+    }
+
+    /**
+     * Indique si une position touche un bord du cadre visible.
+     */
+    public boolean touchesEdge(WorldPosition position){
+        GameMap map = state.map();
+        int minX = map.origin().x();
+        int minY = map.origin().y();
+        return position.x() == minX
+                || position.x() == minX + map.width() - 1
+                || position.y() == minY
+                || position.y() == minY + map.height() - 1;
+    }
+
+    /**
+     * Voisines orthogonales d'une position, dans le cadre visible.
+     */
+    public java.util.List<WorldPosition> neighbours(WorldPosition position){
+        java.util.List<WorldPosition> result = new java.util.ArrayList<>(4);
+        WorldPosition[] candidates = {
+                new WorldPosition(position.x() + 1, position.y()),
+                new WorldPosition(position.x() - 1, position.y()),
+                new WorldPosition(position.x(), position.y() + 1),
+                new WorldPosition(position.x(), position.y() - 1)
+        };
+        for (WorldPosition c : candidates) {
+            if (inFrame(c)) {
+                result.add(c);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Valeur réelle d'un dinosaure selon son âge : le barème du jeu chute vite au début,
+     * puis plus lentement (500 / sqrt(age / 4 + 5) - 60).
+     */
+    public static double ageValue(int age){
+        return Math.max(0.0, 500.0 / Math.sqrt(age / 4.0 + 5.0) - 60.0);
     }
 
     /**

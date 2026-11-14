@@ -24,32 +24,48 @@ public class Bot {
 
   /**
    * Décide de l'action à jouer pour le tour courant.
-   * Priorité à la météorite ; si aucune cible météorite n'est valable, on tente un volcan.
-   * Le serveur n'applique que la première action de la liste.
+   *
+   * <p>Un volcan doit être lancé tôt : il coule pendant des dizaines de tours et sa lave
+   * reste sur la carte. On le déclenche donc dès qu'il n'y en a plus, sauf quand il ne reste
+   * que quelques dinosaures : là, une météorite peut vider la carte et déclencher la vague
+   * suivante immédiatement.
    *
    * @param state l'état du jeu reçu du serveur pour ce tour
    * @return la liste des actions à envoyer (vide si rien n'est utile ce tour)
-   */
-  /*
-   * Here is where the magic happens, for now the moves are not very good. I bet you can do better ;)
    */
   public List<Action> getActions(TeamGameState state) {
     List<Action> actions = new ArrayList<>();
 
     TurnView view = new TurnView(state);
 
-    Optional<WorldPosition> meteorTarget = meteorPlanner.bestTarget(view);
-    if(meteorTarget.isPresent()) {
-      // Une météorite a une bonne cible, on la lance
-      actions.add(new LaunchMeteorAction(meteorTarget.get()));
-    }else{
-      // Sinon, on regarde si un volcan peut être utile.
-      Optional<WorldPosition> volcanoTarget  = volcanoPlanner.bestMountain(view);
-      volcanoTarget.ifPresent(target -> actions.add(new TriggerVolcanoAction(target)));
+    boolean volcanoActive = view.volcanoCount() >= view.constants().maxVolcanoes();
+    Optional<WorldPosition> volcanoTarget = volcanoActive
+            ? Optional.empty()
+            : volcanoPlanner.bestMountain(view);
+
+    // Priorité au volcan tant que la carte n'est pas presque vide. Il vaut mieux perdre
+    // un tour de météorite que de laisser mourir la coulée : la lave reste et bloque les
+    // dinosaures pendant toute la partie.
+    boolean nearlyClear = view.dinosaurs().size() <= 3;
+    if (!nearlyClear && !volcanoActive) {
+      if (volcanoTarget.isPresent()) {
+        actions.add(new TriggerVolcanoAction(volcanoTarget.get()));
+        return actions;
+      }
     }
 
-    // The engine applies only ONE action per turn (actions[0]); extra actions are ignored and
-    // reported in lastTickErrors.
+    Optional<WorldPosition> meteorTarget = meteorPlanner.bestTarget(view);
+    if (meteorTarget.isPresent()) {
+      actions.add(new LaunchMeteorAction(meteorTarget.get()));
+      return actions;
+    }
+
+    // Sinon, on tente le volcan (y compris quand la carte est presque vide et qu'aucune
+    // cible de météorite n'a été trouvée).
+    if (volcanoTarget.isPresent()) {
+      actions.add(new TriggerVolcanoAction(volcanoTarget.get()));
+    }
+
     return actions;
   }
 }

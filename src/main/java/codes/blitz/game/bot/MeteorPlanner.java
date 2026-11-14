@@ -6,6 +6,9 @@ import java.util.Optional;
 
 public final class MeteorPlanner {
 
+  // Une météorite n'est lancée que si elle touche au moins ce nombre de dinosaures.
+  private static final int MIN_DINOS_PER_METEOR = 1;
+
   /**
    * Choisit la meilleure cible de météorite pour ce tour.
    * Chaque dinosaure vivant dans le cadre sert de cible candidate ; on garde celle qui
@@ -50,14 +53,19 @@ public final class MeteorPlanner {
    * @param view la vue du tour courant
    * @param target la position candidate de l'impact
    * @param radius le rayon d'explosion (constante {@code meteorRadius})
-   * @return le score de la cible (0 si aucun dinosaure n'est touché)
+   * @return le score de la cible, ou 0 si elle touche moins de {@code MIN_DINOS_PER_METEOR} dinosaures
    */
   private int scoreTarget(TurnView view, WorldPosition target, int radius) {
     int score = 0;
+    int covered = 0;
     for (Dinosaur dino : view.dinosaurs()) {
       if (manhattan(dino.position(), target) <= radius) {
         score += Math.max(1, 20 - dino.age());
+        covered++;
       }
+    }
+    if (covered < MIN_DINOS_PER_METEOR) {
+      return 0;
     }
     return score;
   }

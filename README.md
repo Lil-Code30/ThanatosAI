@@ -4,8 +4,8 @@ Bot Java pour le défi d'inscription Blitz 2027 « Le défi de l'extinction ».
 Le bot joue seul contre le jeu : chaque tour il reçoit l'état du jeu et envoie
 **une seule action** (lancer une météorite ou déclencher un volcan). Le but est
 d'obtenir le meilleur score possible sur une partie de 1000 tours.
-
-> ‼️ I am just responsible for the code in `src/bot/Bot.java` And the reste are [Coveo's](https://github.com/coveo) properties
+![img.png](img.png)
+> ‼️ I am just responsible for the code in `src/bot/` And the reste are [Coveo's](https://github.com/coveo) properties
 
 ## Prérequis
 
